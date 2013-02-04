@@ -1,0 +1,13 @@
+			SIHOOK
+=================================
+ABOUT:
+sihook is a tabs plugin for source insight 3.x.
+
+
+BUILD:
+sihook is build with w32-gcc,sihook.cbp is a codeblocks project file.
+you can also make it use Makefile,there's a simple one in the project.
+
+
+INSTALL:
+copy msimg32.dll sihook.dll to source insight dir. 
