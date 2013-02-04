@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="sihook" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin\Debug\sihook" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\Debug\" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-g" />
+					<Add option="-DBUILD_DLL" />
+				</Compiler>
+				<Linker>
+					<Add library="user32" />
+					<Add library="gdi32" />
+					<Add library="libcomctl32.a" />
+				</Linker>
+			</Target>
+			<Target title="Release">
+				<Option output="bin\Release\sihook" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\Release\" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-Wall" />
+					<Add option="-DBUILD_DLL" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add library="user32" />
+					<Add library="gdi32" />
+					<Add library="libcomctl32.a" />
+				</Linker>
+			</Target>
+		</Build>
+		<Unit filename="const.h" />
+		<Unit filename="mdiclient.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="mdiclient.h" />
+		<Unit filename="siframe.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="siframe.h" />
+		<Unit filename="sihook.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="sisw.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="sisw.h" />
+		<Unit filename="tabctl.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="tabctl.h" />
+		<Unit filename="utils.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="utils.h" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
