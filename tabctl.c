@@ -276,6 +276,10 @@ void SiTabCtl_OnDrawItem(DRAWITEMSTRUCT* item)
 	type = GetColorIndex(text);
 	//创建颜色为hdc（窗口矩形）背景色的实画刷
 	hBrush = CreateSolidBrush(color_table[type]);
+	if(SiTabCtl_GetCurItem() == item->itemID)
+	{
+		hBrush = CreateSolidBrush(RGB(255,0,0));
+	}
     //SetTextColor(lpDrawItem->hDC, RGB(0, 0, 255));
     //FrameRect(item->hDC,&item->rcItem,hBrush);
     FillRect(item->hDC,&item->rcItem,hBrush);
