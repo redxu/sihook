@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdio.h>
 #include "utils.h"
 
 //输出调试信息
@@ -8,7 +9,7 @@ void WINAPI OutputDebugStringEx(LPCTSTR lpcFormatText, ...)
 
     va_list argptr;
     va_start(argptr, lpcFormatText);
-    wvsprintf(szBuffer, lpcFormatText, argptr);
+    vsprintf(szBuffer, lpcFormatText, argptr);
     va_end(argptr);
 
 	OutputDebugString(szBuffer);
@@ -36,12 +37,12 @@ char* GetSiSwTitle(const char* lpc,char* title)
 			i++;
 			continue;
 		}
-		
+
 		if(skip_flag == 0)
 		{
 			title[index++] = lpc[i];
 		}
-		
+
 		i++;
 	}
 	title[index] = '\0';
@@ -96,10 +97,10 @@ int GetColorIndex(const char* filename)
 		return 2;
 	p = strstri(filename,".hpp");
 	if(p != NULL)
-		return 2;	
+		return 2;
 	p = strstri(filename,".hxx");
 	if(p != NULL)
-		return 2;	
+		return 2;
 	p = strstri(filename,".inc");
 	if(p != NULL)
 		return 2;
@@ -109,20 +110,20 @@ int GetColorIndex(const char* filename)
 		return 3;
 	p = strstri(filename,".text");
 	if(p != NULL)
-		return 3;	
+		return 3;
 	p = strstri(filename,".doc");
 	if(p != NULL)
-		return 3;	
+		return 3;
 	//type 4
 	p = strstri(filename,".php");
 	if(p != NULL)
 		return 4;
 	p = strstri(filename,".php3");
 	if(p != NULL)
-		return 4;	
+		return 4;
 	p = strstri(filename,".htm");
 	if(p != NULL)
-		return 4;	
+		return 4;
 	p = strstri(filename,".js");
 	if(p != NULL)
 		return 4;
@@ -132,14 +133,14 @@ int GetColorIndex(const char* filename)
 		return 5;
 	p = strstri(filename,".pb");
 	if(p != NULL)
-		return 5;	
+		return 5;
 	p = strstri(filename,".vbs");
 	if(p != NULL)
-		return 5;	
+		return 5;
 	p = strstri(filename,".vb");
 	if(p != NULL)
-		return 5;		
-									
+		return 5;
+
 	return 0;
 }
 

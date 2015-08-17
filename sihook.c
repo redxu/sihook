@@ -1,6 +1,7 @@
 #include <windows.h>
 #include "siframe.h"
 #include "mdiclient.h"
+#include "patch.h"
 
 HWND hwnd_si_frame = NULL;
 HWND hwnd_mdi_client = NULL;
@@ -16,7 +17,7 @@ void HookSI(void)
 		ExitProcess(-1);
 	}
     HookSiFrame();
-    
+
     //hook MDIClient
     hwnd_mdi_client = GetMdiClientHwnd(hwnd_si_frame);
     if(hwnd_mdi_client == NULL)
@@ -25,6 +26,19 @@ void HookSI(void)
 		ExitProcess(-1);
     }
 	HookMdiClient();
+
+	//Path SI
+	if(PatchSI() == 0)
+	{
+		OutputDebugString("PatchSI Success!");
+	}
+	else 
+	{
+		OutputDebugString("PatchSI Failed!");
+	}
+	
+	//hook apis
+	//HookWinApi();
 }
 
 void UnhookSI(void)
