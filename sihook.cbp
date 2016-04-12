@@ -60,6 +60,9 @@
 		<Unit filename="sihook.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="sistatusbar.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="sisw.c">
 			<Option compilerVar="CC" />
 		</Unit>

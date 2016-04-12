@@ -1,6 +1,9 @@
 #include <string.h>
 #include <stdio.h>
+#include "const.h"
 #include "utils.h"
+
+GetU8FlagFn GetU8Flag = NULL;
 
 //输出调试信息
 void WINAPI OutputDebugStringEx(LPCTSTR lpcFormatText, ...)
@@ -29,11 +32,11 @@ char* GetSiSwTitle(const char* lpc,char* title)
 	{
 		if(lpc[i] == '(')
 		{
-			skip_flag = 1;
+			skip_flag++;
 		}
 		else if(lpc[i] == ')')
 		{
-			skip_flag = 0;
+			skip_flag--;
 			i++;
 			continue;
 		}
@@ -144,3 +147,36 @@ int GetColorIndex(const char* filename)
 	return 0;
 }
 
+/**
+ * 检查是否加载了siutf8插件
+ * @return  [0-未加载 1-已加载]
+ */
+int CheckUtf8Loaded(void)
+{
+	static int loaded = -1;
+	if(loaded != -1)
+		return loaded;
+
+	HMODULE hmod = GetModuleHandle(SI_DLLNAME_UTF8);
+	if(hmod == NULL)
+	{
+		loaded = 0;
+		OutputDebugString("siutf8.dll未加载!");
+		return loaded;
+	}
+
+	GetU8Flag = (GetU8FlagFn)GetProcAddress(hmod, "FindU8FlagFromLink");
+	if(GetU8Flag == NULL)
+	{
+		loaded = 0;
+		OutputDebugString("FindU8FlagFromLink函数未找到!");
+		return loaded;
+	}
+	else
+	{
+		loaded = 1;
+		OutputDebugStringEx("FindU8FlagFromLink addr: 0x%p", GetU8Flag);
+	}
+
+	return loaded;
+}

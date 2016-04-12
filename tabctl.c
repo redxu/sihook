@@ -5,9 +5,11 @@
 
 #include "const.h"
 #include "utils.h"
+#include "sistatusbar.h"
 #include "tabctl.h"
 
 extern HWND hwnd_tab_ctl;
+extern GetU8FlagFn GetU8Flag;
 static WNDPROC old_tab_ctl_proc = NULL;
 static int last_row_count = 1;
 static COLORREF color_table[10] =
@@ -166,6 +168,24 @@ void SiTabCtl_SetCurItem(HWND hwnd)
 	if(idx == -1)
 		return;
 	TabCtrl_SetCurSel(hwnd_tab_ctl,idx);
+
+	//notify si statusbar
+	if(CheckUtf8Loaded())
+	{
+		char title[256];
+		TCITEM tci;
+		memset(&tci,0,sizeof(TCITEM));
+		tci.mask = TCIF_TEXT;
+		tci.pszText = (LPSTR)title;
+		tci.cchTextMax = SI_BUF_SIZE;
+		TabCtrl_GetItem(hwnd_tab_ctl,idx,&tci);
+
+		int u8 = GetU8Flag(tci.pszText);
+		if(u8 != -1)
+		{
+			SiStatusBar_ShowCodec(u8);
+		}
+	}
 }
 
 //获取当前Item
