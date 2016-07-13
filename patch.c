@@ -37,7 +37,7 @@ int PatchSI(void)
 		}
 		if((mbi.Protect&PAGE_EXECUTE_READ) && (mbi.State == MEM_COMMIT))
 		{	
-			for(start = mbi.BaseAddress;start < mbi.BaseAddress+mbi.RegionSize-5;start++)
+			for(start = (PBYTE)mbi.BaseAddress;start < (PBYTE)mbi.BaseAddress+mbi.RegionSize-5;start++)
 			{
 				if(memcmp(start,TARGET,sizeof(TARGET)) == 0)
 				{

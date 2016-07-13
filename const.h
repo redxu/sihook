@@ -1,7 +1,7 @@
 #ifndef __CONST__H__
 #define __CONST__H__
 
-#define PLUGIN_VERSION	"v1.2a"
+#define PLUGIN_VERSION	"v1.3a"
 #define PLUGIN_TITLE	" ¼ÓÇ¿°æ"
 
 #define SI_BUF_SIZE			256

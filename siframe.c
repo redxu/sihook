@@ -6,6 +6,7 @@
 
 extern HWND hwnd_si_frame;
 extern HWND hwnd_tab_ctl;
+extern int last_active_item;
 static WNDPROC old_si_frame_proc = NULL;
 
 static BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lparam)
@@ -58,6 +59,10 @@ static LRESULT CALLBACK SiFrameSubClass(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 			if(hdr->code == TCN_SELCHANGE)
 			{
 				SiTabCtl_OnSelChange();
+			}
+			else if(hdr->code == TCN_SELCHANGING)
+			{
+				last_active_item = SiTabCtl_GetCurItem();
 			}
 			else if(hdr->code == NM_CLICK)
 			{

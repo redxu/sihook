@@ -4,6 +4,7 @@
 #include <windows.h>
 #include <commctrl.h>
 #include <wingdi.h>
+#include <stdio.h>
 
 //创建TabCtl
 void SiTabCtl_Create(HWND parent);
@@ -19,12 +20,16 @@ void SiTabCtl_AddItem(char* title,HWND hwnd);
 int SiTabCtl_FindItem(HWND hwnd);
 //删除Item
 void SiTabCtl_DelItem(HWND hwnd);
+//关闭标签页
+void SiTabCtl_CloseItem(int idx);
 //设置Item文字
 void SiTabCtl_SetItemText(HWND hwnd,char* text);
 //选中Item
 void SiTabCtl_SetCurItem(HWND hwnd);
 //获取当前Item
 int SiTabCtl_GetCurItem(void);
+//获取鼠标所在Item
+int SiTabCtl_GetCursorItem(void);
 //判断是否行数改变
 BOOL SiTabCtl_IsRowChanged(void);
 //位置改变
@@ -33,7 +38,9 @@ void SiTabCtl_OnPosChanging(WINDOWPOS* pos);
 void SiTabCtl_OnSelChange(void);
 //双击选项卡
 void SiTabCtl_OnLButtonDblClk(void);
-//单击选项卡
+//右键单击选项卡
+void SiTabCtl_OnRButtonClk(void);
+//左键单击选项卡
 void SiTabCtl_OnLButtonClk(void);
 //重绘选项卡
 void SiTabCtl_OnDrawItem(DRAWITEMSTRUCT* item);

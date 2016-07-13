@@ -8,10 +8,18 @@
 #include "sistatusbar.h"
 #include "tabctl.h"
 
+#define PM_CLOSE_CURRENT	1314
+#define PM_CLOSE_OTHER		1315
+#define PM_CLOSE_RIGHT		1316
+#define PM_CLOSE_LEFT		1317
+#define PM_ABOUT			1400
+
 extern HWND hwnd_tab_ctl;
 extern GetU8FlagFn GetU8Flag;
 static WNDPROC old_tab_ctl_proc = NULL;
 static int last_row_count = 1;
+static int last_rbutton_item = -1;
+int last_active_item = -1;
 static COLORREF color_table[10] =
 {
 	RGB(255,255,255),	//default
@@ -31,9 +39,66 @@ static LRESULT CALLBACK TabCtlSubClass(HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 
 	switch(uMsg)
 	{
+	case WM_RBUTTONDOWN:
+		{
+			SiTabCtl_OnRButtonClk();
+		}
+		break;
 	case WM_LBUTTONDBLCLK:
 		{
 			SiTabCtl_OnLButtonDblClk();
+		}
+		break;
+	case WM_COMMAND:
+		{
+			int pm = (int)wParam;
+			if(pm == PM_CLOSE_CURRENT)
+			{
+				if(last_rbutton_item == -1)
+					break;
+				SiTabCtl_CloseItem(last_rbutton_item);
+				last_rbutton_item = -1;
+			}
+			else if(pm == PM_CLOSE_OTHER)
+			{
+				int i,count;
+				count = SiTabCtl_GetItemCount();
+				if(last_rbutton_item == -1)
+					break;
+				for(i=count; i>last_rbutton_item; i--)
+					SiTabCtl_CloseItem(i);
+				for(i=last_rbutton_item-1; i>=0; i--)
+					SiTabCtl_CloseItem(i);
+				last_rbutton_item = -1;
+			}
+			else if(pm == PM_CLOSE_LEFT)
+			{
+				int i,count;
+				count = SiTabCtl_GetItemCount();
+				if(last_rbutton_item == -1)
+					break;
+				for(i=count; i>last_rbutton_item; i--)
+					SiTabCtl_CloseItem(i);
+				last_rbutton_item = -1;
+			}
+			else if(pm == PM_CLOSE_RIGHT)
+			{
+				int i;
+				if(last_rbutton_item == -1)
+					break;
+				for(i=last_rbutton_item-1; i>=0; i--)
+					SiTabCtl_CloseItem(i);
+				last_rbutton_item = -1;
+			}
+			else if(pm == PM_ABOUT)
+			{
+				char about[1024];
+				sprintf(about, "File: sihook.dll\n"
+								"Version: %s\n"
+								"Author: RedXu\n"
+								"Website: https://github.com/redxu/sihook", PLUGIN_VERSION);
+				MessageBox(hwnd_tab_ctl, about, "About sitab", MB_OK);
+			}
 		}
 		break;
 	default:
@@ -146,6 +211,22 @@ void SiTabCtl_DelItem(HWND hwnd)
 	TabCtrl_DeleteItem(hwnd_tab_ctl,idx);
 }
 
+//关闭标签页
+void SiTabCtl_CloseItem(int idx)
+{
+	HWND hwnd;
+	if(idx < 0)
+		return;
+
+	TCITEM tci;
+	memset(&tci,0,sizeof(TCITEM));
+	tci.mask = TCIF_TEXT | TCIF_PARAM;
+	TabCtrl_GetItem(hwnd_tab_ctl,idx,&tci);
+	hwnd = (HWND)tci.lParam;
+
+	SendMessage(hwnd,WM_SYSCOMMAND,SC_CLOSE,0);	
+}
+
 //设置Item文字
 void SiTabCtl_SetItemText(HWND hwnd,char* text)
 {
@@ -194,6 +275,20 @@ int SiTabCtl_GetCurItem(void)
 	return TabCtrl_GetCurSel(hwnd_tab_ctl);
 }
 
+//获取鼠标所在Item
+int SiTabCtl_GetCursorItem(void)
+{
+	POINT point;
+	GetCursorPos(&point);
+	ScreenToClient(hwnd_tab_ctl, &point);
+	TCHITTESTINFO info;
+    info.pt.x = point.x;
+    info.pt.y = point.y;
+    info.flags = TCHT_ONITEM;
+
+    return TabCtrl_HitTest(hwnd_tab_ctl, &info);
+}
+
 //判断是否行数改变
 BOOL SiTabCtl_IsRowChanged(void)
 {
@@ -233,24 +328,50 @@ void SiTabCtl_OnSelChange(void)
 	SendMessage(GetParent(hwnd),WM_MDIACTIVATE,(WPARAM)hwnd,0);
 }
 
+//弹出菜单
+static void SiTabCtl_PopupMenu(int index, POINT* point, int type)
+{
+	HMENU hMenu = CreatePopupMenu();
+	if(type == 0)
+	{
+		AppendMenu(hMenu, MF_STRING, PM_CLOSE_CURRENT, "关闭标签");
+		AppendMenu(hMenu, MF_STRING, PM_CLOSE_OTHER, "关闭其他");
+		AppendMenu(hMenu, MF_STRING, PM_CLOSE_RIGHT, "关闭右侧");
+		AppendMenu(hMenu, MF_STRING, PM_CLOSE_LEFT, "关闭左侧");
+	}
+	else
+	{
+		AppendMenu(hMenu, MF_STRING, PM_ABOUT, "关于sitab");
+	}
+	TrackPopupMenu(hMenu, TPM_LEFTALIGN, point->x, point->y, 0, hwnd_tab_ctl, NULL);
+}
+
 //双击选项卡
 void SiTabCtl_OnLButtonDblClk(void)
 {
-	HWND hwnd;
 	int idx = SiTabCtl_GetCurItem();
-	if(idx == -1)
-		return;
-
-	TCITEM tci;
-	memset(&tci,0,sizeof(TCITEM));
-	tci.mask = TCIF_TEXT | TCIF_PARAM;
-	TabCtrl_GetItem(hwnd_tab_ctl,idx,&tci);
-	hwnd = (HWND)tci.lParam;
-
-	SendMessage(hwnd,WM_SYSCOMMAND,SC_CLOSE,0);
+	SiTabCtl_CloseItem(idx);
 }
 
-//单击选项卡
+//右键单击选项卡
+void SiTabCtl_OnRButtonClk(void)
+{
+	int index, count;
+	POINT point;
+	count = SiTabCtl_GetItemCount();
+	index = SiTabCtl_GetCursorItem();
+	if(index < 0)
+	{
+		last_rbutton_item = -1;
+		return;
+	}
+	last_rbutton_item = index;
+	//TabCtrl_SetCurSel(hwnd_tab_ctl, index);
+	GetCursorPos(&point);
+	SiTabCtl_PopupMenu(index, &point, index == count);
+}
+
+//左键单击选项卡
 void SiTabCtl_OnLButtonClk(void)
 {
 	int rtv;
@@ -261,9 +382,12 @@ void SiTabCtl_OnLButtonClk(void)
 	if(count == 0)
 		return;
 
-	rtv = MessageBox(hwnd_tab_ctl,"是否关闭所有标签?","sitab plugin by Red_angelX",MB_OKCANCEL|MB_ICONQUESTION|MB_DEFBUTTON2);
+	rtv = MessageBox(hwnd_tab_ctl,"是否关闭所有标签?","sitab plugin by RedXu",MB_OKCANCEL|MB_ICONQUESTION|MB_DEFBUTTON2);
 	if(rtv == IDCANCEL)
+	{
+		TabCtrl_SetCurSel(hwnd_tab_ctl, last_active_item);
 		return;
+	}
 
 	while(count > 0)
 	{
@@ -307,3 +431,4 @@ void SiTabCtl_OnDrawItem(DRAWITEMSTRUCT* item)
     SetBkMode(item->hDC,TRANSPARENT);
     DrawText(item->hDC,text,strlen(text),&item->rcItem,DT_CENTER|DT_LEFT|DT_VCENTER|DT_SINGLELINE);
 }
+
